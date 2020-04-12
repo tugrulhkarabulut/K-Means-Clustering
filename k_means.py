@@ -1,13 +1,19 @@
 import numpy as np
 
+import initialization_methods as init_methods
 
 class KMeans:
-    def __init__(self, n_clusters = 3, tolerance = 0.01, max_iter = 100, runs = 1):
+
+    def __init__(self, n_clusters = 3, tolerance = 0.01, max_iter = 100, runs = 1, init_method="forgy"):
         self.n_clusters = n_clusters
         self.tolerance = tolerance
         self.cluster_means = np.zeros(n_clusters)
         self.max_iter = max_iter
-        self.runs = runs
+        self.init_method = init_method
+
+        # There is no need to run the algorithm multiple times if the 
+        # initialization method is not a random process
+        self.runs = runs if init_method == 'forgy' else 1
         
     def fit(self, X):
         row_count, col_count = X.shape
@@ -18,10 +24,10 @@ class KMeans:
         
         costs = np.zeros(self.runs)
         all_clusterings = []
-                        
+
         for i in range(self.runs):
-            previous_means = np.zeros(self.n_clusters)
             cluster_means =  self.__initialize_means(X_values, row_count)
+
             for _ in range(self.max_iter):            
                 previous_means = np.copy(cluster_means)
                 
@@ -46,7 +52,14 @@ class KMeans:
         return all_clusterings[best_clustering_index]
         
     def __initialize_means(self, X, row_count):
-        return X [ np.random.randint(0, row_count, self.n_clusters) ]
+        if self.init_method == 'forgy':
+            return init_methods.forgy(X, row_count, self.n_clusters)
+        elif self.init_method == 'maximin':
+            return init_methods.maximin(X, self.n_clusters)
+        elif self.init_method == 'macqueen':
+            return init_methods.macqueen(X, self.n_clusters)
+        else:
+            raise Exception('The initialization method {} does not exist or not implemented'.format(self.init_method))
         
     def __compute_distances(self, X, cluster_means, row_count):
         distances = np.zeros((row_count, self.n_clusters))
