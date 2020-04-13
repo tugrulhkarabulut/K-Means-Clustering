@@ -58,6 +58,8 @@ class KMeans:
             return init_methods.maximin(X, self.n_clusters)
         elif self.init_method == 'macqueen':
             return init_methods.macqueen(X, self.n_clusters)
+        elif self.init_method == 'var_part':
+            return init_methods.var_part(X, self.n_clusters)
         else:
             raise Exception('The initialization method {} does not exist or not implemented'.format(self.init_method))
         
