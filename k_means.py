@@ -36,9 +36,10 @@ class KMeans:
                 X_labels = self.__label_examples(distances)
             
                 cluster_means = self.__compute_means(X_values, X_labels, col_count)
-                            
-                if np.linalg.norm(cluster_means - previous_means) < self.tolerance:
-                    break 
+
+                clusters_not_changed = np.abs(cluster_means - previous_means) < self.tolerance
+                if np.all(clusters_not_changed) != False:
+                    break
             
             X_values_with_labels = np.append(X_values, X_labels[:, np.newaxis], axis = 1)
             
